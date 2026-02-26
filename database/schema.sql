@@ -1,0 +1,129 @@
+CREATE TABLE users (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  full_name VARCHAR(120) NOT NULL,
+  email VARCHAR(160) NOT NULL UNIQUE,
+  phone VARCHAR(20) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('ADMIN','WORKER','CUSTOMER') NOT NULL,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE worker_profiles (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL UNIQUE,
+  bio VARCHAR(500),
+  skills VARCHAR(500),
+  city VARCHAR(80) NOT NULL,
+  area VARCHAR(120),
+  verification_status ENUM('PENDING','VERIFIED','REJECTED') DEFAULT 'PENDING',
+  rating_avg DECIMAL(3,2) DEFAULT 0,
+  total_completed_jobs INT DEFAULT 0,
+  free_interaction_used INT DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE jobs (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  customer_id BIGINT NOT NULL,
+  title VARCHAR(180) NOT NULL,
+  description TEXT NOT NULL,
+  city VARCHAR(80) NOT NULL,
+  area VARCHAR(120),
+  budget_min DECIMAL(10,2),
+  budget_max DECIMAL(10,2),
+  status ENUM('OPEN','IN_PROGRESS','COMPLETED','CANCELLED') DEFAULT 'OPEN',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_id) REFERENCES users(id)
+);
+
+CREATE TABLE job_applications (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  job_id BIGINT NOT NULL,
+  worker_id BIGINT NOT NULL,
+  message TEXT,
+  status ENUM('APPLIED','SHORTLISTED','REJECTED','HIRED') DEFAULT 'APPLIED',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_job_worker (job_id, worker_id),
+  FOREIGN KEY (job_id) REFERENCES jobs(id),
+  FOREIGN KEY (worker_id) REFERENCES users(id)
+);
+
+CREATE TABLE subscriptions (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  worker_id BIGINT NOT NULL,
+  plan_name VARCHAR(40) NOT NULL,
+  price_inr DECIMAL(10,2) NOT NULL,
+  start_at TIMESTAMP NOT NULL,
+  end_at TIMESTAMP,
+  status ENUM('ACTIVE','EXPIRED','CANCELLED') DEFAULT 'ACTIVE',
+  FOREIGN KEY (worker_id) REFERENCES users(id)
+);
+
+CREATE TABLE wallets (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  worker_id BIGINT NOT NULL UNIQUE,
+  balance DECIMAL(12,2) NOT NULL DEFAULT 0,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (worker_id) REFERENCES users(id)
+);
+
+CREATE TABLE wallet_transactions (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  wallet_id BIGINT NOT NULL,
+  txn_type ENUM('CREDIT','DEBIT') NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  reference_type VARCHAR(40),
+  reference_id VARCHAR(120),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (wallet_id) REFERENCES wallets(id)
+);
+
+CREATE TABLE payments (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  purpose ENUM('SUBSCRIPTION','WALLET_TOPUP') NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  currency VARCHAR(10) DEFAULT 'INR',
+  provider VARCHAR(30) DEFAULT 'RAZORPAY',
+  provider_order_id VARCHAR(120),
+  provider_payment_id VARCHAR(120),
+  status ENUM('CREATED','SUCCESS','FAILED') DEFAULT 'CREATED',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE conversations (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  customer_id BIGINT NOT NULL,
+  worker_id BIGINT NOT NULL,
+  job_id BIGINT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_id) REFERENCES users(id),
+  FOREIGN KEY (worker_id) REFERENCES users(id),
+  FOREIGN KEY (job_id) REFERENCES jobs(id)
+);
+
+CREATE TABLE messages (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  conversation_id BIGINT NOT NULL,
+  sender_id BIGINT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id),
+  FOREIGN KEY (sender_id) REFERENCES users(id)
+);
+
+CREATE TABLE ratings (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  job_id BIGINT NOT NULL,
+  customer_id BIGINT NOT NULL,
+  worker_id BIGINT NOT NULL,
+  score INT NOT NULL,
+  comment VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (job_id) REFERENCES jobs(id),
+  FOREIGN KEY (customer_id) REFERENCES users(id),
+  FOREIGN KEY (worker_id) REFERENCES users(id)
+);
