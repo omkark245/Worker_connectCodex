@@ -1,89 +1,62 @@
-# Worker Connect (MVP Blueprint)
+# WorkConnect - Local Worker Hiring Platform
 
-Worker Connect is a marketplace app where:
-- **Customers** post local ads/jobs.
-- **Workers** browse ads and message customers.
-- **Admin** verifies workers, manages jobs/users, and monitors payments.
+WorkConnect is a marketplace platform where customers post local jobs and workers discover and message nearby customers (similar to OLX for services).
 
-This repository currently contains a production-oriented **implementation blueprint** for building the app with:
-- **Frontend:** React + Vite
-- **Backend:** Java Spring Boot
-- **Database:** MySQL (can be hosted using XAMPP stack)
-- **Payments:** Razorpay
+## Tech Stack
+- **Frontend:** React.js + Vite
+- **Backend:** Java Spring Boot (REST API)
+- **Database:** MySQL / XAMPP (`createDatabaseIfNotExist=true` enables automatic DB creation)
+- **Payments:** Razorpay (stubbed order/verify API endpoints, ready for integration)
+- **Maps:** Latitude/longitude matching with 10km filter (Google Maps-ready coordinates)
 
-## Core Product Scope
+## Implemented Core Features
+- Customer can post job ads with skill, location and image URL.
+- Worker can find open jobs within a 10km radius.
+- Worker messaging billing:
+  - first **10 messages free**
+  - then **₹10 per customer message**
+- Customer can rate workers.
+- Admin can:
+  - view all customers, workers, jobs
+  - approve workers after verification
+  - block workers from login.
+- Job auto-removal when marked `COMPLETED`.
 
-### 1) Roles
-- **Worker**
-  - Create profile (skills, city/area, rating, portfolio)
-  - View jobs in location
-  - First 10 jobs/messages free
-  - Upgrade plan (₹100) for extended messaging
-  - Wallet top-up via Razorpay
-- **Customer**
-  - Post job/ads
-  - Browse and contact workers
-  - Rate worker after completion
-- **Admin**
-  - Verify workers (KYC/status)
-  - View jobs, customers, workers
-  - View payment and subscription details
-
-### 2) High-Level Features
-- Location-based job matching (city/area)
-- Worker ratings and ranking
-- In-app chat between customer and worker
-- Subscription quota and plan upgrade
-- Wallet ledger + payment tracking
-- Admin moderation dashboard
-
-## Suggested Monorepo Structure
-
+## Project Structure
 ```text
-worker-connect/
-  frontend/                   # React + Vite app
-  backend/                    # Spring Boot app
-  database/
-    schema.sql                # Initial SQL schema
-  docs/
-    architecture.md
-    api-contract.md
+frontend/  # React + Vite UI inspired by shared WorkConnect design
+backend/   # Spring Boot API + JPA domain
+database/  # SQL reference schema
+docs/      # architecture and API contract references
 ```
 
-## Build Plan
-1. Setup Spring Boot modules (Auth, Users, Jobs, Chat, Payments, Admin)
-2. Setup React routes (Worker, Customer, Admin dashboards)
-3. Integrate JWT auth and role-based guards
-4. Integrate Razorpay order flow + webhook verification
-5. Implement job limits and plan upgrade rules
-6. Add analytics and moderation screens for admin
-
-## Quick Start (recommended)
-
-### Backend
-- Java 17+
-- Maven 3.9+
-- MySQL 8+
-
-Create DB:
-```sql
-CREATE DATABASE worker_connect;
+## Run Frontend
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-Use `database/schema.sql` for initial table creation.
+## Run Backend
+```bash
+cd backend
+mvn spring-boot:run
+```
 
-### Frontend
-- Node 20+
-- npm 10+
+Backend runs at `http://localhost:8080`.
 
-Create React app with Vite and connect to backend REST APIs in `docs/api-contract.md`.
+## Important API Endpoints
+- `POST /api/v1/customers/jobs`
+- `GET /api/v1/search/jobs-nearby?lat=..&lng=..&maxKm=10`
+- `POST /api/v1/workers/messages`
+- `POST /api/v1/ratings`
+- `GET /api/v1/admin/workers`
+- `POST /api/v1/admin/workers/{workerId}/approve`
+- `POST /api/v1/admin/workers/{workerId}/block`
+- `POST /api/v1/payments/razorpay/order`
 
-## Security & Compliance Checklist
-- Password hashing with BCrypt/Argon2
-- JWT access + refresh token strategy
-- Secure Razorpay webhook signature verification
-- File upload validation for worker verification docs
-- Audit logs for admin actions
-
-## Next Step
-Start by implementing authentication and user role onboarding, then jobs and chat, then payments/subscription and admin analytics.
+## Next Recommended Steps
+- Add secure JWT auth and role guards.
+- Add real Razorpay signature validation and webhook updates.
+- Integrate Google Maps Places autocomplete + reverse geocoding.
+- Add image upload storage (S3/local storage) and cleanup scheduler.
