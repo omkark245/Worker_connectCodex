@@ -1,0 +1,44 @@
+:root {
+  font-family: Inter, system-ui, Arial, sans-serif;
+  color: #0f172a;
+  background: #f5f7fb;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+.top-nav nav { display: flex; gap: 1rem; }
+.top-nav a { text-decoration: none; color: #334155; }
+.brand { font-weight: 800; color: #2f80ed; }
+main { padding: 2rem; }
+.hero { background: linear-gradient(140deg, #eaf1ff, white); border-radius: 20px; padding: 2rem; }
+.split { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; }
+.section { max-width: 1100px; margin: 2rem auto; }
+.card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.2rem; }
+.mock-image { min-height: 280px; display: grid; place-items: center; color: #64748b; }
+.grid-2, .grid-3 { display: grid; gap: 1rem; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.pill, .step { background: #dbeafe; color: #2563eb; padding: .35rem .7rem; border-radius: 999px; font-size: .8rem; display: inline-block; }
+.button-row { display: flex; gap: .8rem; margin-top: 1rem; }
+button { background: #2f80ed; color: white; border: none; padding: .7rem 1rem; border-radius: 10px; cursor: pointer; }
+button.secondary { background: #e2e8f0; color: #0f172a; }
+.auth-layout { display: grid; grid-template-columns: 1.2fr 1fr; min-height: calc(100vh - 78px); gap: 1rem; }
+.auth-banner { background: linear-gradient(180deg, #bfd8ff, #e9f1ff); border-radius: 18px; padding: 2rem; }
+.auth-form form { display: flex; flex-direction: column; gap: .7rem; }
+input, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: .7rem; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border-bottom: 1px solid #e2e8f0; text-align: left; padding: .8rem; }
+@media (max-width: 900px) {
+  .split, .auth-layout, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+}
